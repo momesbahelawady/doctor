@@ -298,6 +298,7 @@
         </table>
       </div>
       <div class="empty" id="noOnlineBookings" style="display:none">مفيش كشوف أونلاين لسه.</div>
+      <div class="hint">بعد تأكيد الدفع، أنشئي اجتماع Zoom وأرسلي اللينك للمريض على رقم الموبايل المسجل في الحجز.</div>
       <div class="hint">لو سجّلت دخولك ومش شايف حجوزات مع إنك متأكد إن في حجوزات، يبقى حسابك لسه مش مضاف لقائمة العيادة في الداتابيز (خطوة "حساب دخول للعيادة" في دليل التشغيل).</div>
     </div>
 
@@ -326,19 +327,18 @@ const CONFIG = {
     // الجمعة أجازة
   },
 
-  // ---- الكشف أونلاين: الجدول والرسوم مؤكدة؛ طريقة الاتصال لسه placeholder ----
+  // ---- الكشف أونلاين: الجدول والرسوم وطريقة الاتصال ----
   onlineConsult: {
     daysAhead: 14,
-    workingDays: [5],                        // الجمعة فقط (5)، مؤكد من العيادة
+    workingDays: [5],                        // الجمعة فقط (5)
     startTime: "17:00",                      // يبدأ 5 مساءً بتوقيت القاهرة
-    endTime: "20:00",                        // ينتهي 8 مساءً، مؤكد من العيادة
-    slotMinutes: 30,                         // مدة الكشف 30 دقيقة، مؤكدة من العيادة
-    feeText: "300 جنيه",                           // رسوم الكشف أونلاين المؤكدة من العيادة
-    methodLabel: "PASTE_ONLINE_CONSULT_METHOD",       // مثال: مكالمة فيديو واتساب
-    contact: "PASTE_ONLINE_CONSULT_LINK_OR_NUMBER",  // لينك أو رقم الاتصال
+    endTime: "20:00",                        // ينتهي 8 مساءً
+    slotMinutes: 30,                         // مدة الكشف 30 دقيقة
+    feeText: "300 جنيه",                           // رسوم الكشف أونلاين
+    methodLabel: "اجتماع Zoom",                        // طريقة الكشف
     payment: {
-      instaPay: "01553023097",                         // إنستاباي، مؤكد من العيادة
-      vodafoneCash: "01553023097",                    // فودافون كاش، مؤكد من العيادة
+      instaPay: "01553023097",                         // إنستاباي
+      vodafoneCash: "01553023097",                    // فودافون كاش
     },
     requireComplaint: true,
   },
@@ -750,6 +750,7 @@ async function confirmOnlinePayment(b, btn){
     localOnlineSave(localOnlineLoad().map(x => x.id === b.id ? { ...x, payment_status: "paid" } : x));
   }
   await openClinicData();
+  alert("اتأكد الدفع. أنشئي اجتماع Zoom وأرسلي اللينك للمريض على رقم الموبايل المسجل.");
 }
 
 async function loadOnlineReceipt(b, img, token){
@@ -914,7 +915,7 @@ function renderOnlineDays(){
   box.innerHTML = "";
   const ok = onlineConfigured();
   document.getElementById("onlineIntro").textContent = "كشف خاص عن بُعد، أيام الجمعة فقط من " + to12h(CONFIG.onlineConsult.startTime) + "، ومنفصل تمامًا عن حجوزات العيادة وعدّاد دورها. الرسوم " + CONFIG.onlineConsult.feeText + " وتُدفع مقدمًا.";
-  document.getElementById("onlinePayInfo").textContent = "رسوم الكشف: " + CONFIG.onlineConsult.feeText + "، تُدفع مقدمًا. حوّل على إنستاباي أو فودافون كاش: " + CONFIG.onlineConsult.payment.instaPay + "، وبعدين ارفع صورة إيصال التحويل هنا. الحجز بيفضل بانتظار تأكيد العيادة.";
+  document.getElementById("onlinePayInfo").textContent = "رسوم الكشف: " + CONFIG.onlineConsult.feeText + "، تُدفع مقدمًا. حوّل على إنستاباي أو فودافون كاش: " + CONFIG.onlineConsult.payment.instaPay + "، وبعدين ارفع صورة إيصال التحويل هنا. الحجز بيفضل بانتظار تأكيد العيادة. طريقة الكشف: " + CONFIG.onlineConsult.methodLabel + ". بعد تأكيد الدفع، هتوصلك دعوة Zoom على رقم الموبايل اللي حجزت بيه.";
   setup.style.display = ok ? "none" : "block";
   picker.style.display = ok ? "block" : "none";
   if (!ok) return;
@@ -1071,9 +1072,7 @@ async function submitOnlineBooking(e){
     ? "طريقة الاتصال هتتأكد من العيادة."
     : "طريقة الاتصال: " + CONFIG.onlineConsult.methodLabel + ".";
   const l6 = document.createElement("div");
-  l6.textContent = isPlaceholder(CONFIG.onlineConsult.contact)
-    ? "العيادة هتوافيك بلينك أو رقم الاتصال بعد تأكيد الدفع."
-    : "بيانات الاتصال: " + CONFIG.onlineConsult.contact;
+  l6.textContent = "بعد تأكيد الدفع، هتوصلك دعوة Zoom على رقم الموبايل اللي حجزت بيه.";
   const l7 = document.createElement("div");
   l7.textContent = "الحجز ده منفصل عن دور العيادة، فمش بيأثر على عدّاد كشف العيادة. لو احتجت تغيّر الميعاد، كلم العيادة على " + CONFIG.clinicPhone + ".";
   nBox.appendChild(l1); nBox.appendChild(l2); nBox.appendChild(l3); nBox.appendChild(l4); nBox.appendChild(l5); nBox.appendChild(l6); nBox.appendChild(l7);
